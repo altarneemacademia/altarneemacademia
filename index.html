@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>alTarneem Academia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+    body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+    .page-circle { transition: all 0.2s ease-in-out; }
+    .page-circle.active { background-color: #2563eb; color: white; border-color: #1d4ed8; transform: scale(1.08); }
+    .active-tab { border-bottom: 3px solid #0284c7; color: #0284c7; font-weight: 700; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-16">
+
+  <div id="loadingScreen" class="fixed inset-0 bg-emerald-900 z-50 flex flex-col items-center justify-center text-white">
+    <div class="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-md border border-white/20 shadow-2xl">
+      <i class="fa-solid me-0 fa-book-quran text-5xl text-emerald-400"></i>
+    </div>
+    <h1 class="text-3xl font-bold tracking-wider">alTarneem Academia</h1>
+    <p class="text-emerald-200 text-sm mt-1">Nurturing Quranic Excellence</p>
+    <div class="mt-8 flex items-center space-x-2">
+      <div class="w-3 h-3 bg-emerald-400 rounded-full animate-bounce"></div>
+      <div class="w-3 h-3 bg-emerald-400 rounded-full animate-bounce delay-100"></div>
+      <div class="w-3 h-3 bg-emerald-400 rounded-full animate-bounce delay-200"></div>
+    </div>
+  </div>
+
+  <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-emerald-800 rounded-full flex items-center justify-center border border-emerald-600">
+          <i class="fa-solid fa-book-open text-emerald-300"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">alTarneem</h1>
+          <p id="userRoleBadge" class="text-xs text-emerald-300 font-medium">Guest</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button onclick="toggleConfigModal()" class="p-2 text-emerald-200 hover:text-white transition">
+          <i class="fa-solid fa-gear text-lg"></i>
+        </button>
+        <button onclick="switchUserRolePrompt()" class="bg-emerald-800 hover:bg-emerald-700 text-xs px-3 py-1.5 rounded-lg border border-emerald-600 font-medium transition">
+          Switch Login
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-2xl mx-auto px-4 mt-4">
+
+    <!-- Role Banner Notice -->
+    <div id="roleBanner" class="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between">
+      <span class="flex items-center"><i class="fa-solid fa-user-shield me-2 text-emerald-600"></i> Active View: <strong id="activeRoleText" class="ml-1">Student</strong></span>
+      <span id="userNameText" class="font-semibold text-emerald-700">Not Signed In</span>
+    </div>
+
+    <!-- ADMIN / MONITOR MAIN TABS -->
+    <div id="topTabNav" class="hidden flex bg-white rounded-xl shadow-sm border border-slate-200 p-1 mb-4">
+      <button id="tabBtnRevision" onclick="switchMainTab('Revision')" class="flex-1 py-2 text-sm font-medium text-center rounded-lg transition active-tab">Revision Rooms</button>
+      <button id="tabBtnTafsir" onclick="switchMainTab('Tafsir')" class="flex-1 py-2 text-sm font-medium text-center rounded-lg text-slate-500 hover:text-slate-700 transition">Tafsir</button>
+      <button id="tabBtnSettings" onclick="switchMainTab('Settings')" class="flex-1 py-2 text-sm font-medium text-center rounded-lg text-slate-500 hover:text-slate-700 transition hidden">Settings</button>
+    </div>
+
+    <section id="viewRevision" class="space-y-4">
+      <!-- Subtabs -->
+      <div id="revisionSubtabs" class="hidden flex space-x-2 border-b border-slate-200 pb-2">
+        <button onclick="switchRevisionSubtab('Classrooms')" id="subBtnClassrooms" class="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800">Classrooms</button>
+        <button onclick="switchRevisionSubtab('Attendance')" id="subBtnAttendance" class="text-xs font-medium px-3 py-1.5 rounded-full text-slate-600 hover:bg-slate-100">Attendance</button>
+        <button onclick="switchRevisionSubtab('Reports')" id="subBtnReports" class="text-xs font-medium px-3 py-1.5 rounded-full text-slate-600 hover:bg-slate-100">Reports</button>
+      </div>
+
+      <!-- Revision Classrooms Subview -->
+      <div id="subViewClassrooms" class="space-y-3">
+        <div class="flex justify-between items-center">
+          <h2 class="text-base font-bold text-slate-800">Revision Rooms</h2>
+          <button id="adminNewRevisionBtn" onclick="openCreateRevisionModal()" class="hidden text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-medium shadow hover:bg-emerald-700">
+            + New Room
+          </button>
+        </div>
+        <div id="revisionRoomsList" class="space-y-3">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Revision Attendance Subview -->
+      <div id="subViewAttendance" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-slate-800">Weekly Attendance Grid</h3>
+            <div class="flex items-center space-x-1">
+              <button onclick="navigateWeek(-1)" class="p-1.5 bg-slate-100 rounded-lg text-slate-600 hover:bg-slate-200"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+              <span id="weekDateLabel" class="text-xs font-semibold px-2">Mon Aug 24 - Sat Aug 29</span>
+              <button onclick="navigateWeek(1)" class="p-1.5 bg-slate-100 rounded-lg text-slate-600 hover:bg-slate-200"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+            </div>
+          </div>
+
+          <select id="attendanceRoomSelect" onchange="loadAttendanceGrid()" class="w-full text-xs p-2 rounded-lg border border-slate-300">
+            <option value="">-- Select Classroom --</option>
+          </select>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-600">
+                <tr>
+                  <th class="p-2 border">#</th>
+                  <th class="p-2 border">Student Name</th>
+                  <th class="p-2 border text-center">Mon</th>
+                  <th class="p-2 border text-center">Tue</th>
+                  <th class="p-2 border text-center">Wed</th>
+                  <th class="p-2 border text-center">Thu</th>
+                  <th class="p-2 border text-center">Fri</th>
+                  <th class="p-2 border text-center">Sat</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceGridBody">
+                <tr><td colspan="8" class="text-center p-4 text-slate-400">Select a classroom to display attendance.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="subViewReports" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="font-bold text-sm text-slate-800">5-Week Rolling Report</h3>
+            <span id="reportRoomMeta" class="text-xs text-slate-500">6 days/week</span>
+          </div>
+
+          <select id="reportRoomSelect" onchange="load5WeekReport()" class="w-full text-xs p-2 rounded-lg border border-slate-300">
+            <option value="">-- Select Classroom --</option>
+          </select>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-slate-100 text-slate-700">
+                <tr>
+                  <th class="p-2 border">#</th>
+                  <th class="p-2 border">Student Name</th>
+                  <th id="thW1" class="p-2 border text-center">Week 1<br><span class="text-[10px] text-slate-400">24.08.2026</span></th>
+                  <th id="thW2" class="p-2 border text-center">Week 2<br><span class="text-[10px] text-slate-400">31.08.2026</span></th>
+                  <th id="thW3" class="p-2 border text-center">Week 3<br><span class="text-[10px] text-slate-400">07.09.2026</span></th>
+                  <th id="thW4" class="p-2 border text-center">Week 4<br><span class="text-[10px] text-slate-400">14.09.2026</span></th>
+                  <th id="thW5" class="p-2 border text-center">Week 5<br><span class="text-[10px] text-slate-400">21.09.2026</span></th>
+                  <th class="p-2 border text-center bg-slate-200 font-bold">Status<br><span class="text-[10px] text-slate-500">27.09.2026</span></th>
+                </tr>
+              </thead>
+              <tbody id="reportTableBody">
+                <tr><td colspan="8" class="text-center p-4 text-slate-400">Select a room to generate rolling report.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="viewTafsir" class="hidden space-y-4">
+      <div id="tafsirSubtabs" class="hidden flex space-x-2 border-b border-slate-200 pb-2">
+        <button onclick="switchTafsirSubtab('Rooms')" id="subBtnTafsirRooms" class="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800">Tafsir Rooms</button>
+        <button onclick="switchTafsirSubtab('Progress')" id="subBtnTafsirProgress" class="text-xs font-medium px-3 py-1.5 rounded-full text-slate-600 hover:bg-slate-100">Student Progress</button>
+      </div>
+
+      <div id="subViewTafsirRooms" class="space-y-3">
+        <div class="flex justify-between items-center">
+          <h2 class="text-base font-bold text-slate-800">Tafsir Rooms</h2>
+          <button id="adminNewTafsirBtn" onclick="openCreateTafsirModal()" class="hidden text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-medium shadow hover:bg-emerald-700">
+            + New Tafsir Room
+          </button>
+        </div>
+        <div id="tafsirRoomsList" class="space-y-3">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <div id="subViewTafsirProgress" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h3 class="font-bold text-sm text-slate-800">Tafsir Student Progress Grid</h3>
+          <select id="tafsirProgressRoomSelect" onchange="loadTafsirProgressGrid()" class="w-full text-xs p-2 rounded-lg border border-slate-300">
+            <option value="">-- Select Tafsir Classroom --</option>
+          </select>
+
+          <div id="tafsirProgressHeader" class="text-xs font-semibold text-emerald-800 bg-emerald-50 p-2 rounded-lg hidden"></div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-600">
+                <tr id="tafsirTableHeader">
+                  <th class="p-2 border">#</th>
+                  <th class="p-2 border">Student Name</th>
+                  <th class="p-2 border text-center">Week 7 (Pg 37-42)</th>
+                  <th class="p-2 border text-center">Week 8 (Pg 43-48)</th>
+                  <th class="p-2 border text-center">Week 9 (Pg 49-54)</th>
+                </tr>
+              </thead>
+              <tbody id="tafsirProgressBody">
+                <tr><td colspan="5" class="text-center p-4 text-slate-400">Select a classroom to view progress.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="viewSettings" class="hidden space-y-4">
+      <div class="flex overflow-x-auto space-x-2 border-b border-slate-200 pb-2">
+        <button onclick="switchSettingsSubtab('Roster')" id="subBtnRoster" class="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 whitespace-nowrap">Roster</button>
+        <button onclick="switchSettingsSubtab('Methods')" id="subBtnMethods" class="text-xs font-medium px-3 py-1.5 rounded-full text-slate-600 hover:bg-slate-100 whitespace-nowrap">Revision Settings</button>
+        <button onclick="switchSettingsSubtab('Monitors')" id="subBtnMonitors" class="text-xs font-medium px-3 py-1.5 rounded-full text-slate-600 hover:bg-slate-100 whitespace-nowrap">Monitors</button>
+        <button onclick="switchSettingsSubtab('Cleanup')" id="subBtnCleanup" class="text-xs font-medium px-3 py-1.5 rounded-full text-slate-600 hover:bg-slate-100 whitespace-nowrap">DB Cleanup</button>
+      </div>
+
+      <!-- Roster Subtab -->
+      <div id="subViewRoster" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+        <h3 class="font-bold text-sm text-slate-800">Classroom Roster</h3>
+        <select id="rosterRoomSelect" onchange="loadRoster()" class="w-full text-xs p-2 rounded-lg border border-slate-300">
+          <option value="">-- Select Classroom --</option>
+        </select>
+
+        <div class="flex items-center space-x-2">
+          <input type="text" id="rosterSearchInput" onkeyup="filterRoster()" placeholder="Search student by name..." class="flex-1 text-xs p-2 rounded-lg border border-slate-300">
+        </div>
+
+        <div id="rosterList" class="space-y-2 text-xs">
+          <div class="text-slate-400 text-center py-4">Select a room to show registered students.</div>
+        </div>
+      </div>
+
+      <!-- Methods Subtab -->
+      <div id="subViewMethods" class="hidden bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+        <h3 class="font-bold text-sm text-slate-800">Revision Methods & Short Codes</h3>
+        <div id="methodsList" class="space-y-2 text-xs">
+          <!-- Dynamically populated -->
+        </div>
+        <div class="pt-3 border-t border-slate-200 space-y-2">
+          <h4 class="font-semibold text-xs text-slate-700">Add New Method</h4>
+          <div class="grid grid-cols-3 gap-2">
+            <input type="text" id="newMethodName" placeholder="Method Name (e.g. Dictation)" class="col-span-2 text-xs p-2 border rounded-lg">
+            <input type="text" id="newMethodCode" placeholder="3-Letter Code" maxlength="3" class="text-xs p-2 border rounded-lg uppercase">
+          </div>
+          <button onclick="addMethod()" class="w-full bg-emerald-600 text-white text-xs py-2 rounded-lg font-bold">Add Method</button>
+        </div>
+      </div>
+
+      <!-- Monitors Subtab -->
+      <div id="subViewMonitors" class="hidden bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+        <h3 class="font-bold text-sm text-slate-800">Head & Class Monitors</h3>
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 space-y-2">
+          <label class="text-xs font-bold text-emerald-900">Head Monitor Assignment</label>
+          <div class="flex space-x-2">
+            <input type="email" id="headMonitorEmail" placeholder="User email address..." class="flex-1 text-xs p-2 border rounded-lg">
+            <button onclick="saveHeadMonitor()" class="bg-emerald-700 text-white text-xs px-3 py-2 rounded-lg font-bold">Assign Head</button>
+          </div>
+          <p class="text-[10px] text-emerald-700">Head Monitor gains access to all attendance and reports without admin settings access.</p>
+        </div>
+      </div>
+
+      <!-- DB Cleanup Subtab -->
+      <div id="subViewCleanup" class="hidden bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="font-bold text-sm text-slate-800">Database Maintenance</h3>
+        <p class="text-xs text-slate-500">Purge records older than 3 months to keep Google Sheets running smoothly.</p>
+        <div class="flex space-x-3">
+          <button onclick="cleanupDB('Revision')" class="flex-1 bg-red-50 border border-red-200 text-red-700 text-xs py-2 rounded-lg font-bold hover:bg-red-100">
+            Purge Revision (>3 mos)
+          </button>
+          <button onclick="cleanupDB('Tafsir')" class="flex-1 bg-red-50 border border-red-200 text-red-700 text-xs py-2 rounded-lg font-bold hover:bg-red-100">
+            Purge Tafsir (>3 mos)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="viewStudent" class="space-y-4">
+      <div class="bg-gradient-to-r from-emerald-800 to-emerald-900 text-white p-4 rounded-2xl shadow-md space-y-3">
+        <h2 class="font-bold text-lg">Student Dashboard</h2>
+        <p class="text-xs text-emerald-200">Join classrooms with your unique 6-digit code or complete daily tasks.</p>
+        
+        <div class="flex space-x-2 bg-white/10 p-1.5 rounded-xl border border-white/20">
+          <input type="text" id="joinCodeInput" placeholder="Enter 6-Digit Join Code" class="flex-1 bg-transparent px-3 text-xs text-white placeholder-emerald-200 focus:outline-none">
+          <button onclick="submitJoinCode()" class="bg-emerald-400 text-emerald-950 font-bold text-xs px-4 py-2 rounded-lg shadow hover:bg-emerald-300">
+            Join Class
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="font-bold text-sm text-slate-700">My Joined Classrooms</h3>
+        <div id="myJoinedRoomsList" class="space-y-3">
+          <div class="text-center py-6 text-slate-400 text-xs bg-white rounded-xl border border-dashed border-slate-300">
+            No classrooms joined yet. Enter a code above to get started!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STUDENT DAILY REVISION TASK VIEW -->
+    <section id="viewStudentRevisionTask" class="hidden space-y-4">
+      <button onclick="backToStudentDash()" class="text-xs text-slate-500 font-semibold flex items-center">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Rooms
+      </button>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-center">
+        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">Daily Revision</span>
+        <h2 id="taskRoomName" class="text-xl font-bold text-slate-800">Classroom Name</h2>
+        <p id="taskPortion" class="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border">Today's Portion</p>
+
+        <div id="revisionSubmissionForm" class="space-y-4 pt-2">
+          <h3 class="font-bold text-sm text-slate-800">How did you Revise Today?</h3>
+          <div id="methodButtonsContainer" class="grid grid-cols-2 gap-2 text-xs">
+            <!-- Dynamically populated buttons -->
+          </div>
+
+          <button id="markCompleteBtn" onclick="submitDailyRevision()" disabled class="w-full bg-emerald-600 opacity-50 text-white py-3 rounded-xl font-bold shadow-lg text-sm">
+            Mark Revision Complete
+          </button>
+        </div>
+
+        <div id="revisionSuccessBox" class="hidden p-6 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-2">
+          <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <h3 class="font-bold text-emerald-900 text-base">Alhamdulillah!</h3>
+          <p class="text-xs text-emerald-700">Revision Submitted. Come back again tomorrow!</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="viewStudentTafsirTask" class="hidden space-y-4">
+      <button onclick="backToStudentDash()" class="text-xs text-slate-500 font-semibold flex items-center">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Rooms
+      </button>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="text-center space-y-1">
+          <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">Tafsir Tracker</span>
+          <h2 id="tafsirTaskRoomName" class="text-xl font-bold text-slate-800">Tafsir Room Name</h2>
+          <p id="tafsirTaskWeekMeta" class="text-xs text-slate-500">Week 9 of 52 (6 Pages/Week)</p>
+        </div>
+
+        <!-- 3 Rolling Weeks View -->
+        <div id="tafsirWeeksContainer" class="space-y-4">
+          <!-- Dynamically generated week cards -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: Create Revision Room -->
+  <div id="modalCreateRevision" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-5 space-y-4">
+      <h3 class="font-bold text-base text-slate-800">Create Revision Room</h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold block mb-1">Room Name</label>
+          <input type="text" id="revRoomName" class="w-full p-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Days Per Week</label>
+          <input type="number" id="revDays" value="6" min="1" max="7" class="w-full p-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Daily Portions / Description</label>
+          <textarea id="revPortion" rows="2" class="w-full p-2 border rounded-lg" placeholder="e.g. Mon: Surah Baqarah 1-20..."></textarea>
+        </div>
+      </div>
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeModal('modalCreateRevision')" class="flex-1 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">Cancel</button>
+        <button onclick="saveNewRevisionRoom()" class="flex-1 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Create Tafsir Room -->
+  <div id="modalCreateTafsir" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-5 space-y-4">
+      <h3 class="font-bold text-base text-slate-800">Create Tafsir Room</h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="font-semibold block mb-1">Room Name</label>
+          <input type="text" id="tafsirRoomName" class="w-full p-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Start Date</label>
+          <input type="date" id="tafsirStartDate" class="w-full p-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="font-semibold block mb-1">Pages Per Week</label>
+          <input type="number" id="tafsirPagesPerWeek" value="6" min="1" class="w-full p-2 border rounded-lg">
+        </div>
+      </div>
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeModal('modalCreateTafsir')" class="flex-1 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">Cancel</button>
+        <button onclick="saveNewTafsirRoom()" class="flex-1 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Configuration / Web App URL setup -->
+  <div id="modalConfig" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl p-5 space-y-4">
+      <h3 class="font-bold text-base text-slate-800">API Connection Settings</h3>
+      <div class="space-y-2 text-xs">
+        <label class="font-semibold block">Google Apps Script Web App URL</label>
+        <input type="url" id="webAppUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full p-2 border rounded-lg">
+        <p class="text-[10px] text-slate-500">Paste your deployed Apps Script Web App link to connect database.</p>
+      </div>
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeModal('modalConfig')" class="flex-1 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg">Close</button>
+        <button onclick="saveApiUrl()" class="flex-1 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg">Save URL</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State Management
+    let state = {
+      apiUrl: localStorage.getItem('altarneem_api_url') || '',
+      currentUser: JSON.parse(localStorage.getItem('altarneem_user') || 'null'),
+      classrooms: [],
+      methods: [],
+      monitors: [],
+      headMonitor: '',
+      activeRoom: null,
+      selectedMethodCode: null,
+      currentWeekOffset: 0
+    };
+
+    // Initialize App
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loadingScreen').classList.add('hidden');
+        if (!state.currentUser) {
+          switchUserRolePrompt();
+        } else {
+          updateUIState();
+          fetchInitialData();
+        }
+      }, 1200);
+    });
+
+    function toggleConfigModal() {
+      document.getElementById('webAppUrlInput').value = state.apiUrl;
+      document.getElementById('modalConfig').classList.remove('hidden');
+    }
+
+    function saveApiUrl() {
+      state.apiUrl = document.getElementById('webAppUrlInput').value.trim();
+      localStorage.setItem('altarneem_api_url', state.apiUrl);
+      closeModal('modalConfig');
+      alert('API URL Saved!');
+      fetchInitialData();
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // Role Simulation / Login Prompt
+    function switchUserRolePrompt() {
+      const email = prompt("Enter User Email (e.g., admin@academia.com or student@gmail.com):", state.currentUser ? state.currentUser.email : "student@gmail.com");
+      if (!email) return;
+
+      const name = prompt("Enter Full Name:", state.currentUser ? state.currentUser.name : "Ahmad User");
+      const whatsapp = prompt("Enter WhatsApp Number:", state.currentUser ? state.currentUser.whatsapp : "+1234567890");
+
+      callApi({ action: 'registerUser', email: email, name: name, whatsapp: whatsapp }, (res) => {
+        if (res.success) {
+          state.currentUser = res.user;
+          localStorage.setItem('altarneem_user', JSON.stringify(res.user));
+          updateUIState();
+          fetchInitialData();
+        } else {
+          alert('Failed to register/log in');
+        }
+      });
+    }
+
+    function updateUIState() {
+      if (!state.currentUser) return;
+
+      const user = state.currentUser;
+      document.getElementById('userNameText').innerText = user.name + ` (${user.email})`;
+      
+      // Calculate effective role
+      let effectiveRole = user.role;
+      if (user.email.toLowerCase() === state.headMonitor.toLowerCase()) {
+        effectiveRole = "Head Monitor";
+      }
+
+      document.getElementById('activeRoleText').innerText = effectiveRole;
+      document.getElementById('userRoleBadge').innerText = effectiveRole;
+
+      // Visibility Rules based on role
+      const isStudent = effectiveRole === 'Student';
+      const isAdmin = effectiveRole === 'Admin';
+      const isHeadMonitor = effectiveRole === 'Head Monitor';
+
+      document.getElementById('topTabNav').classList.toggle('hidden', isStudent);
+      document.getElementById('viewStudent').classList.toggle('hidden', !isStudent);
+
+      // Subtabs for Admin / Head Monitor
+      document.getElementById('revisionSubtabs').classList.toggle('hidden', isStudent);
+      document.getElementById('tafsirSubtabs').classList.toggle('hidden', isStudent);
+      document.getElementById('adminNewRevisionBtn').classList.toggle('hidden', !isAdmin);
+      document.getElementById('adminNewTafsirBtn').classList.toggle('hidden', !isAdmin);
+      document.getElementById('tabBtnSettings').classList.toggle('hidden', !isAdmin);
+    }
+
+    function callApi(payload, callback) {
+      if (!state.apiUrl) {
+        // Fallback Mock execution if API not set
+        console.warn("No API URL configured. Operating in local mode.");
+        setTimeout(() => callback({ success: true, classrooms: [], methods: [] }), 300);
+        return;
+      }
+
+      fetch(state.apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => callback(data))
+      .catch(err => {
+        console.error("API Error:", err);
+        alert("API Request Failed. Check console or URL configuration.");
+      });
+    }
+
+    function fetchInitialData() {
+      callApi({ action: 'getInitialData' }, (res) => {
+        if (res.success) {
+          state.classrooms = res.classrooms || [];
+          state.methods = res.methods || [];
+          state.monitors = res.monitors || [];
+          state.headMonitor = res.headMonitor || '';
+          
+          updateUIState();
+          renderClassrooms();
+          renderMethods();
+        }
+      });
+    }
+
+    function switchMainTab(tab) {
+      document.getElementById('viewRevision').classList.toggle('hidden', tab !== 'Revision');
+      document.getElementById('viewTafsir').classList.toggle('hidden', tab !== 'Tafsir');
+      document.getElementById('viewSettings').classList.toggle('hidden', tab !== 'Settings');
+
+      document.getElementById('tabBtnRevision').className = tab === 'Revision' ? 'flex-1 py-2 text-sm font-medium text-center rounded-lg transition active-tab' : 'flex-1 py-2 text-sm font-medium text-center rounded-lg text-slate-500 hover:text-slate-700 transition';
+      document.getElementById('tabBtnTafsir').className = tab === 'Tafsir' ? 'flex-1 py-2 text-sm font-medium text-center rounded-lg transition active-tab' : 'flex-1 py-2 text-sm font-medium text-center rounded-lg text-slate-500 hover:text-slate-700 transition';
+      document.getElementById('tabBtnSettings').className = tab === 'Settings' ? 'flex-1 py-2 text-sm font-medium text-center rounded-lg transition active-tab' : 'flex-1 py-2 text-sm font-medium text-center rounded-lg text-slate-500 hover:text-slate-700 transition';
+    }
+
+    function switchRevisionSubtab(sub) {
+      document.getElementById('subViewClassrooms').classList.toggle('hidden', sub !== 'Classrooms');
+      document.getElementById('subViewAttendance').classList.toggle('hidden', sub !== 'Attendance');
+      document.getElementById('subViewReports').classList.toggle('hidden', sub !== 'Reports');
+      
+      if (sub === 'Attendance') populateRoomDropdown('attendanceRoomSelect', 'Revision');
+      if (sub === 'Reports') populateRoomDropdown('reportRoomSelect', 'Revision');
+    }
+
+    function switchTafsirSubtab(sub) {
+      document.getElementById('subViewTafsirRooms').classList.toggle('hidden', sub !== 'Rooms');
+      document.getElementById('subViewTafsirProgress').classList.toggle('hidden', sub !== 'Progress');
+
+      if (sub === 'Progress') populateRoomDropdown('tafsirProgressRoomSelect', 'Tafsir');
+    }
+
+    function switchSettingsSubtab(sub) {
+      document.getElementById('subViewRoster').classList.toggle('hidden', sub !== 'Roster');
+      document.getElementById('subViewMethods').classList.toggle('hidden', sub !== 'Methods');
+      document.getElementById('subViewMonitors').classList.toggle('hidden', sub !== 'Monitors');
+      document.getElementById('subViewCleanup').classList.toggle('hidden', sub !== 'Cleanup');
+
+      if (sub === 'Roster') populateRoomDropdown('rosterRoomSelect');
+    }
+
+    function populateRoomDropdown(elementId, filterType = null) {
+      const select = document.getElementById(elementId);
+      select.innerHTML = '<option value="">-- Select Classroom --</option>';
+      state.classrooms.forEach(c => {
+        if (!filterType || c[1] === filterType) {
+          select.innerHTML += `<option value="${c[0]}">${c[2]} (${c[1]})</option>`;
+        }
+      });
+    }
+
+    function renderClassrooms() {
+      const revContainer = document.getElementById('revisionRoomsList');
+      const tafsirContainer = document.getElementById('tafsirRoomsList');
+      const studentContainer = document.getElementById('myJoinedRoomsList');
+
+      revContainer.innerHTML = '';
+      tafsirContainer.innerHTML = '';
+      studentContainer.innerHTML = '';
+
+      state.classrooms.forEach(c => {
+        const roomId = c[0];
+        const type = c[1];
+        const name = c[2];
+        const code = c[9];
+
+        const card = `
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-bold text-sm text-slate-800">${name}</h3>
+                <p class="text-xs text-slate-500">${type === 'Revision' ? c[3] + ' Days/Week' : c[7] + ' Pages/Week'}</p>
+              </div>
+              <span class="text-xs bg-slate-100 text-slate-700 font-mono px-2 py-1 rounded">Code: ${code}</span>
+            </div>
+            <div class="flex space-x-2 pt-2 border-t border-slate-100">
+              <button onclick="copyJoinLink('${code}')" class="flex-1 bg-slate-50 text-slate-600 text-xs py-1.5 rounded-lg border font-medium">Copy Link</button>
+              <button onclick="regenCode('${roomId}')" class="bg-amber-50 text-amber-700 text-xs px-3 py-1.5 rounded-lg border font-medium">Regen Code</button>
+            </div>
+          </div>
+        `;
+
+        if (type === 'Revision') revContainer.innerHTML += card;
+        else tafsirContainer.innerHTML += card;
+
+        // Render joined classrooms for student view
+        if (state.currentUser && state.currentUser.joinedRooms && state.currentUser.joinedRooms.includes(roomId)) {
+          studentContainer.innerHTML += `
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-sm text-slate-800">${name}</h4>
+                <p class="text-xs text-slate-500">${type} Classroom</p>
+              </div>
+              <button onclick="openStudentTask('${roomId}', '${type}')" class="bg-emerald-600 text-white text-xs px-4 py-2 rounded-xl font-bold shadow hover:bg-emerald-700">
+                Enter Class
+              </button>
+            </div>
+          `;
+        }
+      });
+    }
+
+    function copyJoinLink(code) {
+      const link = window.location.href.split('?')[0] + '?join=' + code;
+      navigator.clipboard.writeText(link);
+      alert('Classroom Link Copied: ' + link);
+    }
+
+    function regenCode(roomId) {
+      callApi({ action: 'regenerateJoinCode', roomId: roomId }, (res) => {
+        if (res.success) {
+          alert('New Join Code Generated: ' + res.joinCode);
+          fetchInitialData();
+        }
+      });
+    }
+
+    function submitJoinCode() {
+      const code = document.getElementById('joinCodeInput').value.trim();
+      if (!code) return;
+
+      callApi({ action: 'joinClassroom', joinCode: code, email: state.currentUser.email }, (res) => {
+        if (res.success) {
+          alert('Successfully joined classroom!');
+          state.currentUser.joinedRooms = res.joinedRooms;
+          localStorage.setItem('altarneem_user', JSON.stringify(state.currentUser));
+          renderClassrooms();
+        } else {
+          alert(res.message);
+        }
+      });
+    }
+
+    function openStudentTask(roomId, type) {
+      const room = state.classrooms.find(c => c[0] === roomId);
+      if (!room) return;
+
+      state.activeRoom = room;
+      document.getElementById('viewStudent').classList.add('hidden');
+
+      if (type === 'Revision') {
+        document.getElementById('viewStudentRevisionTask').classList.remove('hidden');
+        document.getElementById('taskRoomName').innerText = room[2];
+        document.getElementById('taskPortion').innerText = "Portion: " + room[4];
+        
+        // Render method buttons
+        const container = document.getElementById('methodButtonsContainer');
+        container.innerHTML = '';
+        state.methods.forEach(m => {
+          container.innerHTML += `
+            <button onclick="selectMethod('${m[2]}', this)" class="p-3 border-2 border-slate-200 rounded-xl font-semibold text-slate-700 hover:border-emerald-500 transition">
+              ${m[1]} <span class="block text-[10px] text-slate-400">(${m[2]})</span>
+            </button>
+          `;
+        });
+      } else {
+        document.getElementById('viewStudentTafsirTask').classList.remove('hidden');
+        document.getElementById('tafsirTaskRoomName').innerText = room[2];
+        loadStudentTafsirCard(room);
+      }
+    }
+
+    function selectMethod(code, btn) {
+      state.selectedMethodCode = code;
+      document.querySelectorAll('#methodButtonsContainer button').forEach(b => b.classList.remove('border-emerald-600', 'bg-emerald-50'));
+      btn.classList.add('border-emerald-600', 'bg-emerald-50');
+      
+      const submitBtn = document.getElementById('markCompleteBtn');
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50');
+    }
+
+    function submitDailyRevision() {
+      if (!state.selectedMethodCode || !state.activeRoom) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const dayOfWeek = days[new Date().getDay()];
+
+      callApi({
+        action: 'submitAttendance',
+        roomId: state.activeRoom[0],
+        email: state.currentUser.email,
+        date: today,
+        dayOfWeek: dayOfWeek,
+        methodCode: state.selectedMethodCode
+      }, (res) => {
+        if (res.success) {
+          document.getElementById('revisionSubmissionForm').classList.add('hidden');
+          document.getElementById('revisionSuccessBox').classList.remove('hidden');
+        }
+      });
+    }
+
+    function loadStudentTafsirCard(room) {
+      callApi({ action: 'getTafsirProgress', roomId: room[0] }, (res) => {
+        if (res.success) {
+          const container = document.getElementById('tafsirWeeksContainer');
+          container.innerHTML = '';
+
+          const currW = res.currentWeek;
+          const pagesPerWeek = res.pagesPerWeek;
+
+          // 3 Rolling Weeks (e.g., currW, currW-1, currW-2)
+          for (let w = currW; w >= Math.max(1, currW - 2); w--) {
+            const startPg = (w - 1) * pagesPerWeek + 1;
+            const endPg = Math.min(604, w * pagesPerWeek);
+
+            let circlesHtml = '';
+            for (let p = startPg; p <= endPg; p++) {
+              circlesHtml += `
+                <button onclick="toggleTafsirPage(${p}, ${w}, this)" class="w-10 h-10 rounded-full border-2 border-slate-300 text-xs font-bold page-circle flex items-center justify-center">
+                  ${p}
+                </button>
+              `;
+            }
+
+            container.innerHTML += `
+              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                <div class="flex justify-between items-center">
+                  <h4 class="font-bold text-sm text-slate-800">Week ${w} ${w === currW ? '<span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Current</span>' : ''}</h4>
+                  <span class="text-xs text-slate-500">Pages ${startPg} - ${endPg}</span>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1">
+                  ${circlesHtml}
+                </div>
+              </div>
+            `;
+          }
+        }
+      });
+    }
+
+    function toggleTafsirPage(page, weekNum, btn) {
+      btn.classList.add('active');
+      callApi({
+        action: 'submitTafsirPage',
+        roomId: state.activeRoom[0],
+        email: state.currentUser.email,
+        pageNumber: page,
+        weekNumber: weekNum
+      }, (res) => {
+        console.log('Page progress saved');
+      });
+    }
+
+    function backToStudentDash() {
+      document.getElementById('viewStudentRevisionTask').classList.add('hidden');
+      document.getElementById('viewStudentTafsirTask').classList.add('hidden');
+      document.getElementById('viewStudent').classList.remove('hidden');
+    }
+
+    function loadAttendanceGrid() {
+      const roomId = document.getElementById('attendanceRoomSelect').value;
+      if (!roomId) return;
+
+      // Generate Mon-Sat dates for current week offset
+      const dates = getMonToSatDates(state.currentWeekOffset);
+      document.getElementById('weekDateLabel').innerText = `${dates[0]} to ${dates[5]}`;
+
+      callApi({ action: 'getAttendanceGrid', roomId: roomId, dates: dates }, (res) => {
+        if (res.success) {
+          const tbody = document.getElementById('attendanceGridBody');
+          tbody.innerHTML = '';
+
+          res.students.forEach((s, idx) => {
+            const studentData = res.grid[s.email] || { days: {} };
+            let cellsHtml = '';
+
+            dates.forEach(d => {
+              const code = studentData.days[d];
+              if (code) {
+                cellsHtml += `<td class="p-2 border text-center bg-emerald-100 text-emerald-800 font-bold">✔ (${code})</td>`;
+              } else {
+                cellsHtml += `<td class="p-2 border text-center text-slate-300">-</td>`;
+              }
+            });
+
+            tbody.innerHTML += `
+              <tr>
+                <td class="p-2 border">${idx + 1}</td>
+                <td class="p-2 border font-medium">${s.name}</td>
+                ${cellsHtml}
+              </tr>
+            `;
+          });
+        }
+      });
+    }
+
+    function getMonToSatDates(offset) {
+      const curr = new Date();
+      const first = curr.getDate() - curr.getDay() + 1 + (offset * 7);
+      const dates = [];
+      for (let i = 0; i < 6; i++) {
+        const next = new Date(curr.setDate(first + i));
+        dates.push(next.toISOString().split('T')[0]);
+      }
+      return dates;
+    }
+
+    function navigateWeek(dir) {
+      state.currentWeekOffset += dir;
+      loadAttendanceGrid();
+    }
+
+    function load5WeekReport() {
+      const roomId = document.getElementById('reportRoomSelect').value;
+      if (!roomId) return;
+
+      // 5 Rolling Mondays YYYY-MM-DD
+      const mondays = [];
+      for (let i = 4; i >= 0; i--) {
+        mondays.push(getMonToSatDates(-i)[0]);
+      }
+
+      callApi({ action: 'get5WeekReport', roomId: roomId, weekMondays: mondays }, (res) => {
+        if (res.success) {
+          document.getElementById('reportRoomMeta').innerText = res.daysPerWeek + " days/week";
+          const tbody = document.getElementById('reportTableBody');
+          tbody.innerHTML = '';
+
+          res.report.forEach(row => {
+            let weeksHtml = '';
+            row.weeks.forEach(w => {
+              if (w.type === 'GREEN_TICK') weeksHtml += `<td class="p-2 border text-center text-emerald-600 font-bold">✔</td>`;
+              else if (w.type === 'BLACK_TICK') weeksHtml += `<td class="p-2 border text-center font-bold">${w.text}</td>`;
+              else if (w.type === 'YELLOW_WARN') weeksHtml += `<td class="p-2 border text-center text-amber-500 font-bold">⚠️</td>`;
+              else weeksHtml += `<td class="p-2 border text-center text-red-500 font-bold">✖</td>`;
+            });
+
+            tbody.innerHTML += `
+              <tr>
+                <td class="p-2 border">${row.sno}</td>
+                <td class="p-2 border font-semibold">${row.name}</td>
+                ${weeksHtml}
+                <td class="p-2 border text-center font-bold bg-slate-50">${row.status}</td>
+              </tr>
+            `;
+          });
+        }
+      });
+    }
+
+    function loadTafsirProgressGrid() {
+      const roomId = document.getElementById('tafsirProgressRoomSelect').value;
+      if (!roomId) return;
+
+      callApi({ action: 'getTafsirProgress', roomId: roomId }, (res) => {
+        if (res.success) {
+          const tbody = document.getElementById('tafsirProgressBody');
+          tbody.innerHTML = '';
+
+          res.progressGrid.forEach(st => {
+            tbody.innerHTML += `
+              <tr>
+                <td class="p-2 border">${st.sno}</td>
+                <td class="p-2 border font-semibold">${st.name}</td>
+                <td class="p-2 border text-center">${st.maxPage > 0 ? 'Page ' + st.maxPage : '-'}</td>
+                <td class="p-2 border text-center">${st.maxPage > 0 ? '✔' : '-'}</td>
+                <td class="p-2 border text-center">${st.maxPage > 0 ? 'In Progress' : '-'}</td>
+              </tr>
+            `;
+          });
+        }
+      });
+    }
+
+    function openCreateRevisionModal() {
+      document.getElementById('modalCreateRevision').classList.remove('hidden');
+    }
+
+    function saveNewRevisionRoom() {
+      const name = document.getElementById('revRoomName').value;
+      const days = document.getElementById('revDays').value;
+      const portion = document.getElementById('revPortion').value;
+
+      callApi({ action: 'createClassroom', type: 'Revision', name: name, daysPerWeek: days, portionDetails: portion }, (res) => {
+        if (res.success) {
+          closeModal('modalCreateRevision');
+          fetchInitialData();
+        }
+      });
+    }
+
+    function openCreateTafsirModal() {
+      document.getElementById('modalCreateTafsir').classList.remove('hidden');
+    }
+
+    function saveNewTafsirRoom() {
+      const name = document.getElementById('tafsirRoomName').value;
+      const startDate = document.getElementById('tafsirStartDate').value;
+      const pages = document.getElementById('tafsirPagesPerWeek').value;
+
+      callApi({ action: 'createClassroom', type: 'Tafsir', name: name, startDate: startDate, pagesPerWeek: pages }, (res) => {
+        if (res.success) {
+          closeModal('modalCreateTafsir');
+          fetchInitialData();
+        }
+      });
+    }
+
+    function renderMethods() {
+      const container = document.getElementById('methodsList');
+      container.innerHTML = '';
+      state.methods.forEach(m => {
+        container.innerHTML += `
+          <div class="flex justify-between items-center p-2 bg-slate-50 border rounded-lg">
+            <span>${m[1]} <strong class="text-emerald-700 ml-1">(${m[2]})</strong></span>
+            <button onclick="deleteMethod('${m[0]}')" class="text-red-500 font-bold"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        `;
+      });
+    }
+
+    function addMethod() {
+      const name = document.getElementById('newMethodName').value;
+      const code = document.getElementById('newMethodCode').value;
+
+      callApi({ action: 'manageMethod', type: 'ADD', name: name, code: code }, (res) => {
+        fetchInitialData();
+      });
+    }
+
+    function deleteMethod(id) {
+      callApi({ action: 'manageMethod', type: 'DELETE', methodId: id }, (res) => {
+        fetchInitialData();
+      });
+    }
+
+    function loadRoster() {
+      const roomId = document.getElementById('rosterRoomSelect').value;
+      if (!roomId) return;
+
+      callApi({ action: 'getRoster', roomId: roomId }, (res) => {
+        if (res.success) {
+          const container = document.getElementById('rosterList');
+          container.innerHTML = '';
+
+          res.roster.forEach(st => {
+            container.innerHTML += `
+              <div class="p-2 border rounded-lg flex justify-between items-center bg-slate-50">
+                <div>
+                  <div class="font-bold">${st.name}</div>
+                  <div class="text-[10px] text-slate-500">${st.whatsapp} | ${st.email}</div>
+                </div>
+                <button onclick="removeStudentFromRoom('${roomId}', '${st.email}')" class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded border border-red-200">Remove</button>
+              </div>
+            `;
+          });
+        }
+      });
+    }
+
+    function removeStudentFromRoom(roomId, email) {
+      callApi({ action: 'removeStudent', roomId: roomId, email: email }, (res) => {
+        loadRoster();
+      });
+    }
+
+    function saveHeadMonitor() {
+      const email = document.getElementById('headMonitorEmail').value;
+      callApi({ action: 'setHeadMonitor', email: email }, (res) => {
+        alert('Head Monitor Updated!');
+        fetchInitialData();
+      });
+    }
+
+    function cleanupDB(target) {
+      if (confirm(`Are you sure you want to clean up ${target} records older than 3 months?`)) {
+        callApi({ action: 'cleanupDatabase', target: target }, (res) => {
+          alert(res.message);
+        });
+      }
+    }
+  </script>
+</body>
+</html>

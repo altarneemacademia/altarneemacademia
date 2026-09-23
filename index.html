@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>alTarneem Academia</title>
+
+  <!-- Tailwind CSS & FontAwesome Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            },
+            gold: {
+              400: '#facc15',
+              500: '#eab308',
+              600: '#ca8a04',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            arabic: ['Amiri', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { -webkit-tap-highlight-color: transparent; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+  <!-- ==================== INITIAL LOADING SCREEN ==================== -->
+  <div id="loading-screen" class="fixed inset-0 z-50 bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300">
+    <div class="relative mb-6">
+      <div class="w-24 h-24 rounded-full bg-brand-700/30 flex items-center justify-center animate-ping absolute inset-0"></div>
+      <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-brand-700 to-brand-500 flex items-center justify-center shadow-xl relative z-10 border-2 border-brand-400">
+        <i class="fa-solid font-arabic text-3xl font-bold text-amber-200">ت</i>
+      </div>
+    </div>
+    
+    <h1 class="text-2xl font-bold tracking-wide font-arabic text-amber-100">alTarneem Academia</h1>
+    <p class="text-xs text-slate-400 mt-1 mb-6">التنسيق والتعليم الأكاديمي</p>
+    
+    <div id="loading-status" class="flex items-center gap-2 text-sm text-slate-300">
+      <i class="fa-solid fa-circle-notch fa-spin text-brand-500"></i>
+      <span>Loading system data...</span>
+    </div>
+
+    <!-- Fallback setup button shown if connection takes longer than 3 seconds -->
+    <div id="loading-fallback" class="hidden mt-6 bg-slate-800 p-4 rounded-xl border border-slate-700 max-w-xs w-full text-left">
+      <p class="text-xs text-amber-400 font-semibold mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Connection taking too long?</p>
+      <p class="text-xs text-slate-300 mb-3">Your Google Sheet API URL might be missing or unauthorized.</p>
+      <button onclick="bypassLoadingToSettings()" class="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2">
+        <i class="fa-solid fa-gear"></i> Open API Settings
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== HEADER / NAVBAR ==================== -->
+  <header class="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
+    <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-brand-700 text-amber-300 flex items-center justify-center font-bold text-lg font-arabic shadow-sm">
+          ت
+        </div>
+        <div>
+          <h1 class="text-sm font-bold text-slate-900 leading-tight">alTarneem</h1>
+          <p id="role-badge" class="text-[10px] uppercase font-bold tracking-wider text-brand-600">Student</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- API Status Indicator -->
+        <button id="api-status-btn" onclick="switchMainTab('settings')" class="px-2 py-1 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          <span id="api-status-text">Set API</span>
+        </button>
+
+        <!-- User Profile Switcher -->
+        <button onclick="openUserModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center hover:bg-slate-200 text-xs">
+          <i class="fa-solid fa-user"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN ROLE VIEW TABS (Admin / Monitor / Student) -->
+    <nav class="bg-slate-900 text-slate-300 text-xs">
+      <div class="max-w-md mx-auto flex justify-around border-t border-slate-800">
+        <button id="tab-btn-revision" onclick="switchMainTab('revision')" class="flex-1 py-2.5 text-center font-medium border-b-2 border-brand-500 text-white flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-book-open"></i>
+          <span>Revision</span>
+        </button>
+        <button id="tab-btn-tafsir" onclick="switchMainTab('tafsir')" class="flex-1 py-2.5 text-center font-medium border-b-2 border-transparent hover:text-white flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-quran"></i>
+          <span>Tafsir</span>
+        </button>
+        <button id="tab-btn-settings" onclick="switchMainTab('settings')" class="flex-1 py-2.5 text-center font-medium border-b-2 border-transparent hover:text-white flex items-center justify-center gap-1.5 hidden-for-student">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Settings</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ==================== MAIN CONTENT AREA ==================== -->
+  <main class="max-w-md mx-auto w-full flex-1 p-4 pb-20">
+
+    <!-- SUBTABS NAVBAR (Admin/Monitor sub-navigation) -->
+    <div id="subtab-container" class="mb-4 bg-white p-1 rounded-xl border border-slate-200 shadow-sm flex gap-1 text-xs">
+      <!-- Subtabs generated dynamically via JS based on current active tab and role -->
+    </div>
+
+    <!-- VIEW 1: REVISION ROOMS TAB -->
+    <section id="view-revision" class="space-y-4">
+      <!-- Content loaded dynamically -->
+    </section>
+
+    <!-- VIEW 2: TAFSIR TAB -->
+    <section id="view-tafsir" class="space-y-4 hidden">
+      <!-- Content loaded dynamically -->
+    </section>
+
+    <!-- VIEW 3: SETTINGS TAB (Admin Only) -->
+    <section id="view-settings" class="space-y-4 hidden">
+      <!-- API Connection Card -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-database text-brand-600"></i> Google Sheet API Connection
+        </h3>
+        <p class="text-xs text-slate-500 mb-3">Paste your deployed Google Apps Script Web App URL below to connect your database.</p>
+        
+        <div class="space-y-2">
+          <input type="text" id="api-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none font-mono">
+          <button onclick="saveApiUrl()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-link"></i> Save & Connect API
+          </button>
+        </div>
+      </div>
+
+      <!-- Settings Sub-View Container -->
+      <div id="settings-subview-content">
+        <!-- Subtab contents: Roster, Revision Settings, Tafsir Settings, Monitors, Database Cleanup -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== USER LOGIN / ROLE SWITCHER MODAL ==================== -->
+  <div id="user-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-user-gear text-brand-600"></i> Account & Profile
+        </h3>
+        <button onclick="closeUserModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Current Profile Details -->
+      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-slate-500">Currently Active:</p>
+          <p id="current-user-name" class="text-sm font-bold text-slate-800">Admin User</p>
+          <p id="current-user-email" class="text-[11px] text-slate-500">admin@altarneem.com</p>
+        </div>
+        <span id="current-user-role" class="px-2 py-1 bg-amber-100 text-amber-800 border border-amber-300 rounded text-[10px] font-bold">ADMIN</span>
+      </div>
+
+      <!-- Quick Role Mode Selector (For Testing/Admin Access) -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-700">Select Role View Mode:</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="setUserRole('admin')" class="py-2 px-3 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-brand-50 hover:border-brand-500 hover:text-brand-700 flex flex-col items-center gap-1">
+            <i class="fa-solid fa-user-shield text-amber-600 text-sm"></i>
+            <span>Admin</span>
+          </button>
+          <button onclick="setUserRole('monitor')" class="py-2 px-3 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-brand-50 hover:border-brand-500 hover:text-brand-700 flex flex-col items-center gap-1">
+            <i class="fa-solid fa-clipboard-user text-blue-600 text-sm"></i>
+            <span>Monitor</span>
+          </button>
+          <button onclick="setUserRole('student')" class="py-2 px-3 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-brand-50 hover:border-brand-500 hover:text-brand-700 flex flex-col items-center gap-1">
+            <i class="fa-solid fa-user-graduate text-emerald-600 text-sm"></i>
+            <span>Student</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Login / Registration Form -->
+      <div class="border-t border-slate-100 pt-3 space-y-3">
+        <p class="text-xs font-bold text-slate-700">Register / Login with Details:</p>
+        <input type="text" id="reg-name" placeholder="Full Name" class="w-full text-xs p-2.5 border rounded-lg">
+        <input type="email" id="reg-email" placeholder="Google Email" class="w-full text-xs p-2.5 border rounded-lg">
+        <input type="tel" id="reg-phone" placeholder="WhatsApp Number (+966...)" class="w-full text-xs p-2.5 border rounded-lg">
+        <button onclick="registerUser()" class="w-full bg-slate-900 text-white text-xs font-bold py-2.5 rounded-lg hover:bg-slate-800">
+          Save & Login Profile
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CORE JAVASCRIPT APP LOGIC ==================== -->
+  <script>
+    // State management
+    const APP_STATE = {
+      apiUrl: localStorage.getItem('altarneem_api_url') || '',
+      currentUser: JSON.parse(localStorage.getItem('altarneem_user') || '{"name":"Admin User","email":"admin@altarneem.com","phone":"","role":"admin"}'),
+      activeTab: 'revision', // revision, tafsir, settings
+      activeSubTab: 'classrooms', // classroom subtabs
+      rooms: [],
+      submissions: [],
+      methods: [
+        { name: 'Listening & Repeat', code: 'LST' },
+        { name: 'Recitation to Teacher', code: 'REC' },
+        { name: 'Self Repetition (5x)', code: 'SLF' },
+        { name: 'Partner Revision', code: 'PRT' }
+      ]
+    };
+
+    // Initialize application safely
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set initial API URL input value
+      if (APP_STATE.apiUrl) {
+        document.getElementById('api-url-input').value = APP_STATE.apiUrl;
+      }
+
+      // Automatically clear splash screen after 2.5s maximum
+      setTimeout(() => {
+        document.getElementById('loading-fallback').classList.remove('hidden');
+      }, 2500);
+
+      // Attempt initial sync
+      syncDataWithBackend();
+    });
+
+    function bypassLoadingToSettings() {
+      hideLoadingScreen();
+      switchMainTab('settings');
+    }
+
+    function hideLoadingScreen() {
+      const screen = document.getElementById('loading-screen');
+      screen.classList.add('opacity-0');
+      setTimeout(() => screen.classList.add('hidden'), 300);
+    }
+
+    // Backend Sync
+    async function syncDataWithBackend() {
+      const statusText = document.getElementById('api-status-text');
+      const statusBtn = document.getElementById('api-status-btn');
+
+      if (!APP_STATE.apiUrl) {
+        statusText.innerText = 'No API';
+        statusBtn.className = 'px-2 py-1 rounded-full text-[10px] font-semibold bg-red-100 text-red-800 border border-red-300 flex items-center gap-1';
+        hideLoadingScreen();
+        renderCurrentView();
+        return;
+      }
+
+      try {
+        statusText.innerText = 'Syncing...';
+        const res = await fetch(APP_STATE.apiUrl);
+        const data = await res.json();
+
+        if (data.status === 'success') {
+          statusText.innerText = 'Connected';
+          statusBtn.className = 'px-2 py-1 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1';
+          if (data.rooms) APP_STATE.rooms = data.rooms;
+        } else {
+          throw new Error('Invalid backend response');
+        }
+      } catch (err) {
+        console.warn('Backend sync warning:', err);
+        statusText.innerText = 'Offline';
+        statusBtn.className = 'px-2 py-1 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1';
+      } finally {
+        hideLoadingScreen();
+        renderCurrentView();
+      }
+    }
+
+    function saveApiUrl() {
+      const url = document.getElementById('api-url-input').value.trim();
+      if (!url.startsWith('https://script.google.com')) {
+        alert('Please enter a valid Google Apps Script Web App URL starting with https://script.google.com');
+        return;
+      }
+      APP_STATE.apiUrl = url;
+      localStorage.setItem('altarneem_api_url', url);
+      alert('API URL saved! Syncing data...');
+      syncDataWithBackend();
+    }
+
+    // View Switching Logic
+    function switchMainTab(tab) {
+      APP_STATE.activeTab = tab;
+      
+      // Update Tab Headers UI
+      ['revision', 'tafsir', 'settings'].forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const view = document.getElementById(`view-${t}`);
+        if (t === tab) {
+          btn.className = 'flex-1 py-2.5 text-center font-medium border-b-2 border-brand-500 text-white flex items-center justify-center gap-1.5';
+          view.classList.remove('hidden');
+        } else {
+          btn.className = 'flex-1 py-2.5 text-center font-medium border-b-2 border-transparent hover:text-white flex items-center justify-center gap-1.5';
+          view.classList.add('hidden');
+        }
+      });
+
+      // Set default subtab
+      if (tab === 'revision') APP_STATE.activeSubTab = 'classrooms';
+      if (tab === 'tafsir') APP_STATE.activeSubTab = 'tafsir-rooms';
+      if (tab === 'settings') APP_STATE.activeSubTab = 'roster';
+
+      renderSubtabs();
+      renderCurrentView();
+    }
+
+    function switchSubTab(sub) {
+      APP_STATE.activeSubTab = sub;
+      renderSubtabs();
+      renderCurrentView();
+    }
+
+    function renderSubtabs() {
+      const container = document.getElementById('subtab-container');
+      let subtabs = [];
+
+      if (APP_STATE.activeTab === 'revision') {
+        if (APP_STATE.currentUser.role === 'admin' || APP_STATE.currentUser.role === 'head_monitor') {
+          subtabs = [
+            { id: 'classrooms', label: 'Classrooms', icon: 'fa-chalkboard' },
+            { id: 'attendance', label: 'Attendance', icon: 'fa-calendar-check' },
+            { id: 'reports', label: 'Reports', icon: 'fa-chart-pie' }
+          ];
+        } else if (APP_STATE.currentUser.role === 'monitor') {
+          subtabs = [
+            { id: 'classrooms', label: 'My Classrooms', icon: 'fa-chalkboard' },
+            { id: 'attendance', label: 'Attendance', icon: 'fa-calendar-check' }
+          ];
+        } else {
+          subtabs = [{ id: 'classrooms', label: 'My Classrooms', icon: 'fa-chalkboard' }];
+        }
+      } else if (APP_STATE.activeTab === 'tafsir') {
+        if (APP_STATE.currentUser.role === 'admin' || APP_STATE.currentUser.role === 'head_monitor' || APP_STATE.currentUser.role === 'monitor') {
+          subtabs = [
+            { id: 'tafsir-rooms', label: 'Tafsir Rooms', icon: 'fa-quran' },
+            { id: 'student-progress', label: 'Student Progress', icon: 'fa-bars-progress' }
+          ];
+        } else {
+          subtabs = [{ id: 'tafsir-rooms', label: 'My Tafsir Rooms', icon: 'fa-quran' }];
+        }
+      } else if (APP_STATE.activeTab === 'settings') {
+        subtabs = [
+          { id: 'roster', label: 'Roster', icon: 'fa-users' },
+          { id: 'rev-settings', label: 'Revision', icon: 'fa-sliders' },
+          { id: 'tafsir-settings', label: 'Tafsir', icon: 'fa-book-quran' },
+          { id: 'monitors', label: 'Monitors', icon: 'fa-user-shield' },
+          { id: 'cleanup', label: 'Cleanup', icon: 'fa-broom' }
+        ];
+      }
+
+      container.innerHTML = subtabs.map(s => `
+        <button onclick="switchSubTab('${s.id}')" class="flex-1 py-1.5 px-2 rounded-lg font-semibold flex items-center justify-center gap-1 transition ${
+          APP_STATE.activeSubTab === s.id ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+        }">
+          <i class="fa-solid ${s.icon} text-[11px]"></i>
+          <span>${s.label}</span>
+        </button>
+      `).join('');
+    }
+
+    function renderCurrentView() {
+      const revContainer = document.getElementById('view-revision');
+      const tafContainer = document.getElementById('view-tafsir');
+      const setSubContent = document.getElementById('settings-subview-content');
+
+      // Update role badge in top navbar
+      document.getElementById('role-badge').innerText = APP_STATE.currentUser.role.replace('_', ' ');
+
+      // Hide settings tab for standard students
+      const settingsTabBtn = document.getElementById('tab-btn-settings');
+      if (APP_STATE.currentUser.role === 'student') {
+        settingsTabBtn.classList.add('hidden');
+      } else {
+        settingsTabBtn.classList.remove('hidden');
+      }
+
+      if (APP_STATE.activeTab === 'revision') {
+        revContainer.innerHTML = renderRevisionContent();
+      } else if (APP_STATE.activeTab === 'tafsir') {
+        tafContainer.innerHTML = renderTafsirContent();
+      } else if (APP_STATE.activeTab === 'settings') {
+        setSubContent.innerHTML = renderSettingsContent();
+      }
+    }
+
+    // View Builders
+    function renderRevisionContent() {
+      if (APP_STATE.activeSubTab === 'classrooms') {
+        return `
+          <!-- Student Join Room Bar -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+            <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-plus-circle text-brand-600"></i> Join a Revision Classroom
+            </h4>
+            <div class="flex gap-2">
+              <input type="text" id="join-code-input" placeholder="Enter Join Code (e.g. REV-102)" class="flex-1 text-xs p-2 rounded-lg border border-slate-300 font-mono uppercase">
+              <button onclick="joinClassroom()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800">
+                Join
+              </button>
+            </div>
+          </div>
+
+          <!-- Revision Rooms List -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Revision Rooms</h3>
+              ${APP_STATE.currentUser.role === 'admin' ? `
+                <button onclick="switchMainTab('settings'); switchSubTab('rev-settings');" class="text-xs text-brand-600 font-bold hover:underline">
+                  + Create Room
+                </button>
+              ` : ''}
+            </div>
+
+            <!-- Sample Classroom Card -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900">حلقة البقرة - المراجعة اليومية</h4>
+                  <p class="text-xs text-slate-500">6 Days / Week • 24 Students</p>
+                </div>
+                <span class="px-2 py-1 bg-brand-50 text-brand-700 border border-brand-200 rounded text-[10px] font-bold">REV-101</span>
+              </div>
+
+              <!-- Daily Submission Form for Student View -->
+              <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
+                <p class="text-xs font-bold text-slate-700">Today's Portion (Wed, Sep 23):</p>
+                <p class="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200 font-arabic">سورة البقرة - الآيات من 102 إلى 120</p>
+                
+                <p class="text-xs font-bold text-slate-700 pt-1">How did you revise today?</p>
+                <div class="grid grid-cols-2 gap-1.5">
+                  ${APP_STATE.methods.map(m => `
+                    <button onclick="markRevision('${m.code}')" class="p-2 bg-white border border-slate-200 rounded text-[11px] font-medium text-slate-700 hover:border-brand-500 hover:bg-brand-50 flex items-center justify-between">
+                      <span>${m.name}</span>
+                      <span class="text-[9px] font-mono font-bold bg-slate-100 text-slate-600 px-1 rounded">${m.code}</span>
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+
+              ${APP_STATE.currentUser.role === 'admin' ? `
+                <div class="flex gap-2 pt-2 border-t border-slate-100 text-xs">
+                  <button onclick="copyJoinCode('REV-101')" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 font-semibold flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-copy"></i> Copy Link
+                  </button>
+                  <button onclick="regenerateCode('REV-101')" class="py-1.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded font-semibold border border-amber-200 flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-arrows-rotate"></i> Regenerate Code
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      } else if (APP_STATE.activeSubTab === 'attendance') {
+        return `
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold text-slate-800">Weekly Attendance Grid</h3>
+              <div class="flex items-center gap-2 text-xs">
+                <button class="p-1 px-2 border rounded hover:bg-slate-100">&lt;</button>
+                <span class="font-bold text-slate-700">Sep 21 - Sep 26</span>
+                <button class="p-1 px-2 border rounded hover:bg-slate-100">&gt;</button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-slate-100 text-slate-600 border-b">
+                    <th class="p-2">#</th>
+                    <th class="p-2 min-w-[120px]">Student</th>
+                    <th class="p-2 text-center">Mon</th>
+                    <th class="p-2 text-center">Tue</th>
+                    <th class="p-2 text-center">Wed</th>
+                    <th class="p-2 text-center">Thu</th>
+                    <th class="p-2 text-center">Fri</th>
+                    <th class="p-2 text-center">Sat</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr>
+                    <td class="p-2 font-mono text-slate-400">1</td>
+                    <td class="p-2 font-semibold">عبدالرحمن الشهري</td>
+                    <td class="p-2 text-center bg-emerald-50 text-emerald-700 font-bold">✓ LST</td>
+                    <td class="p-2 text-center bg-emerald-50 text-emerald-700 font-bold">✓ REC</td>
+                    <td class="p-2 text-center bg-emerald-50 text-emerald-700 font-bold">✓ SLF</td>
+                    <td class="p-2 text-center text-slate-300">-</td>
+                    <td class="p-2 text-center text-slate-300">-</td>
+                    <td class="p-2 text-center text-slate-300">-</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (APP_STATE.activeSubTab === 'reports') {
+        return `
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-xs font-bold text-slate-800">Rolling 5-Week Revision Summary</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-slate-100 text-slate-600 border-b">
+                    <th class="p-2">#</th>
+                    <th class="p-2 min-w-[120px]">Student</th>
+                    <th class="p-2 text-center">W1</th>
+                    <th class="p-2 text-center">W2</th>
+                    <th class="p-2 text-center">W3</th>
+                    <th class="p-2 text-center">W4</th>
+                    <th class="p-2 text-center">W5</th>
+                    <th class="p-2 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr>
+                    <td class="p-2 font-mono text-slate-400">1</td>
+                    <td class="p-2 font-semibold">عبدالرحمن الشهري</td>
+                    <td class="p-2 text-center text-emerald-600 font-bold">✓</td>
+                    <td class="p-2 text-center text-emerald-600 font-bold">✓</td>
+                    <td class="p-2 text-center text-emerald-600 font-bold">✓</td>
+                    <td class="p-2 text-center text-emerald-600 font-bold">✓</td>
+                    <td class="p-2 text-center text-emerald-600 font-bold">✓</td>
+                    <td class="p-2 text-center text-base">🏆⭐</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function renderTafsirContent() {
+      return `
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-start justify-between border-b pb-3">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">تفسير القرآن الكريم - المجموعة الأولى</h3>
+              <p class="text-xs text-slate-500">Week 9 of 52 • 5 Pages per Week</p>
+            </div>
+            <span class="px-2 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded text-[10px] font-bold">TAF-101</span>
+          </div>
+
+          <!-- Rolling 3-Week Interactive Reading Grid for Student -->
+          <div class="space-y-3 pt-1">
+            <h4 class="text-xs font-bold text-slate-700">Recent 3-Week Reading Tracker:</h4>
+
+            <!-- Week 9 (Current) -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-brand-200 space-y-2">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-brand-800">Week 9 (Current)</span>
+                <span class="text-slate-500 font-mono">Pages 41 - 45</span>
+              </div>
+              <div class="flex gap-2">
+                ${[41, 42, 43, 44, 45].map((pg, idx) => `
+                  <button onclick="toggleTafsirPage(this)" class="flex-1 h-9 rounded-full font-bold text-xs flex items-center justify-center border transition ${
+                    idx < 3 ? 'bg-brand-600 text-white border-brand-700 shadow-sm' : 'bg-white text-slate-700 border-slate-300 hover:border-brand-500'
+                  }">
+                    ${pg}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Week 8 -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 opacity-80">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-slate-700">Week 8</span>
+                <span class="text-slate-500 font-mono">Pages 36 - 40</span>
+              </div>
+              <div class="flex gap-2">
+                ${[36, 37, 38, 39, 40].map(pg => `
+                  <div class="flex-1 h-8 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">
+                    ✓
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSettingsContent() {
+      if (APP_STATE.activeSubTab === 'roster') {
+        return `
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-xs font-bold text-slate-800">Classroom Roster</h3>
+            <select class="w-full text-xs p-2 border rounded-lg">
+              <option>حلقة البقرة (REV-101)</option>
+              <option>تفسير القرآن الكريم (TAF-101)</option>
+            </select>
+
+            <div class="divide-y text-xs">
+              <div class="py-2 flex justify-between items-center">
+                <div>
+                  <p class="font-bold">عبدالرحمن الشهري</p>
+                  <p class="text-slate-500 font-mono">+966 50 123 4567</p>
+                </div>
+                <button class="text-red-600 hover:text-red-800 font-semibold text-[11px]">Remove</button>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (APP_STATE.activeSubTab === 'rev-settings') {
+        return `
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="text-xs font-bold text-slate-800">Create New Revision Classroom</h3>
+            <input type="text" placeholder="Room Name" class="w-full text-xs p-2 border rounded-lg">
+            <input type="number" placeholder="Days per week (e.g. 6)" class="w-full text-xs p-2 border rounded-lg">
+            <button class="w-full bg-brand-600 text-white py-2 rounded-lg font-bold text-xs">Create Room</button>
+          </div>
+        `;
+      } else {
+        return `<div class="bg-white p-4 rounded-xl border text-xs text-slate-500">Settings panel configured.</div>`;
+      }
+    }
+
+    // Modal Control & User Management
+    function openUserModal() {
+      document.getElementById('current-user-name').innerText = APP_STATE.currentUser.name;
+      document.getElementById('current-user-email').innerText = APP_STATE.currentUser.email;
+      document.getElementById('current-user-role').innerText = APP_STATE.currentUser.role.toUpperCase();
+      document.getElementById('user-modal').classList.remove('hidden');
+    }
+
+    function closeUserModal() {
+      document.getElementById('user-modal').classList.add('hidden');
+    }
+
+    function setUserRole(role) {
+      APP_STATE.currentUser.role = role;
+      localStorage.setItem('altarneem_user', JSON.stringify(APP_STATE.currentUser));
+      closeUserModal();
+      switchMainTab(role === 'student' ? 'revision' : APP_STATE.activeTab);
+      renderCurrentView();
+    }
+
+    function registerUser() {
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+
+      if (!name || !email) {
+        alert('Please provide at least a name and email.');
+        return;
+      }
+
+      APP_STATE.currentUser = { name, email, phone, role: email.includes('admin') ? 'admin' : 'student' };
+      localStorage.setItem('altarneem_user', JSON.stringify(APP_STATE.currentUser));
+      alert('Profile saved successfully!');
+      closeUserModal();
+      renderCurrentView();
+    }
+
+    function markRevision(methodCode) {
+      alert(`Revision submitted with method: ${methodCode}! JazakAllah Khair.`);
+    }
+
+    function toggleTafsirPage(btn) {
+      btn.className = "flex-1 h-9 rounded-full font-bold text-xs flex items-center justify-center border transition bg-brand-600 text-white border-brand-700 shadow-sm";
+      btn.innerText = "✓";
+    }
+
+    function copyJoinCode(code) {
+      navigator.clipboard.writeText(code);
+      alert(`Join code ${code} copied to clipboard!`);
+    }
+
+    function regenerateCode(room) {
+      const newCode = 'REV-' + Math.floor(100 + Math.random() * 900);
+      alert(`New code generated for ${room}: ${newCode}`);
+    }
+
+    function joinClassroom() {
+      const code = document.getElementById('join-code-input').value.trim();
+      if (!code) return alert('Enter a join code.');
+      alert(`Successfully joined room with code: ${code}`);
+    }
+  </script>
+</body>
+</html>
